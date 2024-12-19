@@ -28,34 +28,12 @@
 // If UVC_MEET4K_DEF is undefined then a declaration is emitted
 // if UVC_MEET4K_DEF is defined to UVC_MEET4K_B then the definition is emitted
 
+#ifndef UVC_MEET4K_CHP
+#define UVC_MEET4K_CHP
+
 #define  _MEET4K_JOIN(a, b)       a ## b
 #define  MEET4K_JOIN(a, b)       _MEET4K_JOIN(a,b)
 #define  MEET4K_CALL(call, ...)  call(__VA_ARGS__)
 #define MEET4K_func(func, ...) MEET4K_CALL(MEET4K_JOIN(UVC_MEET4K_DEF, _meet4kcore_get_set_1), __VA_ARGS__)
 
-#define meet4kcore_get_set_1(...) MEET4K_func(meet4kcore_get_set_1, __VA_ARGS__)
-
-/* declare functions */
-#define UVC_MEET4K_DEF_meet4kcore_get_set_1(name, read, ...) \
-uint8_t meet4kcore_get_##name(v4l2_dev_t *vd); \
-int meet4kcore_set_##name(v4l2_dev_t *vd, uint8_t mode);
-
-/* define functions */
-#define UVC_MEET4K_B_meet4kcore_get_set_1(name, read, ...) \
-uint8_t meet4kcore_get_##name(v4l2_dev_t *vd) \
-{ \
-	uvcx_obsbot_meet4k_configuration_t configuration; \
-	if (E_OK != meet4kcore_get6(vd, &configuration)) { \
-		return 0xff; \
-	} else { \
-		fprintf(stderr, "V4L2_MEET4K: get " #name ": %d\n", configuration.read); \
-	} \
-	return configuration.read; \
-} \
-int meet4kcore_set_##name(v4l2_dev_t *vd, uint8_t mode) \
-{ \
-	uvcx_obsbot_meet4k_configuration_t command = { __VA_ARGS__, mode }; \
-	fprintf(stderr, "V4L2_MEET4K: set " #name ": %d\n", mode); \
-	return meet4kcore_cmd6(vd, &command); \
-}
-
+#endif
