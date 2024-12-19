@@ -515,13 +515,18 @@ void gui_error_gtk3(
 		gtk_widget_set_hexpand (wgtDevices, TRUE);
 
 		int i = 0;
+		int n = 0;
 		for(i = 0; i < v4l2core_get_num_devices(); i++)
 		{
-			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(wgtDevices),
-				v4l2core_get_device_sys_data(i)->name);
+			if ((v4l2core_get_device_sys_data(i)->device_caps & 0x800000) == 0)
+			{
+				gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(wgtDevices),
+					v4l2core_get_device_sys_data(i)->name);
+				n++;
+			}
 		}
 		/*select the last listed device by default*/
-		gtk_combo_box_set_active(GTK_COMBO_BOX(wgtDevices), v4l2core_get_num_devices() - 1);
+		gtk_combo_box_set_active(GTK_COMBO_BOX(wgtDevices), n - 1);
 
 		gtk_grid_attach(GTK_GRID(table), wgtDevices, 1, 3, 1, 1);
 		gtk_widget_show (wgtDevices);
@@ -543,10 +548,22 @@ void gui_error_gtk3(
 				int index = gtk_combo_box_get_active(GTK_COMBO_BOX(wgtDevices));
 
 				char videodevice[30];
-				strncpy(videodevice, v4l2core_get_device_sys_data(index)->device, 29);
+				int i = 0;
+				int n = 0;
+				for(i = 0; i < v4l2core_get_num_devices(); i++)
+				{
+					if ((v4l2core_get_device_sys_data(i)->device_caps & V4L2_CAP_META_CAPTURE) == 0)
+					{
+						if (n == index) {
+							strncpy(videodevice, v4l2core_get_device_sys_data(i)->device, 29);
+							break;
+						}
+						n++;
+					}
+				}
 
 				char progname[PATH_MAX + 1] = { 0 };
-				int n = readlink("/proc/self/exe", progname, sizeof(progname) - 1);
+				n = readlink("/proc/self/exe", progname, sizeof(progname) - 1);
 				if (n<0)
 				{
 					strncpy(progname, g_get_prgname(), sizeof(progname) - 1);
