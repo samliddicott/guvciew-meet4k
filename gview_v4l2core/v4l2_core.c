@@ -213,6 +213,7 @@ static int check_v4l2_dev(v4l2_dev_t *vd)
 	/*add h264 (uvc muxed) to format list if supported by device*/
 	add_h264_format(vd);
 
+	/* Detect OBSBOT Meet4K */
     add_meet4k(vd);
 
 	/*enumerate device controls*/

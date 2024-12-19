@@ -31,11 +31,18 @@
 #include <string.h>
 #include <errno.h>
 #include <assert.h>
+#include "v4l2_devices.h"
 
 #include "gview.h"
 #include "../config.h"
 
 #include "uvc_meet4k.h"
+
+// a29e7641-de04-47e3-8b2b-f4341aff003b (typically ext unit 6, unit id 6)for most OBSBOT extra controls
+#define GUID_UVCX_OBSBOT6_XU   {0x41, 0x76, 0x9E, 0xA2, 0x04, 0xDE, 0xE3, 0x47, 0x8B, 0x2B, 0xF4, 0x34, 0x1A, 0xFF, 0x00, 0x3B}
+
+// 9a1e7291-6843-4683-6d92-39bc7906ee49 (typically ext unit 6, unit id 2)for background bitmap uploading/downloading
+#define GUID_UVCX_OBSBOT6_2_XU {0x91, 0x72, 0x1E, 0x9A, 0x43, 0x68, 0x83, 0x46, 0x6D, 0x92, 0x39, 0xBC, 0x79, 0x06, 0xEE, 0x49}
 
 extern int verbosity;
 
@@ -71,25 +78,90 @@ typedef struct _uvcx_obsbot_meet4k_configuration_t
   };
 } __attribute__((__packed__)) uvcx_obsbot_meet4k_configuration_t;
 
+int check_meet4k(v4l2_dev_t *vd)
+{
+	v4l2_device_list_t *my_device_list = get_device_list();
+
+	if(my_device_list->list_devices[vd->this_device].vendor != 0x6e30)
+	{
+		if(verbosity > 0)
+			printf("V4L2_CORE: OBSBOT Skipping vendor (vendor_id=0x%4x): skiping peripheral V3 unit id check\n",
+				my_device_list->list_devices[vd->this_device].vendor);
+		return 0;
+	}
+
+    if (! strstr(vd->cap.card, "OBSBOT Meet 4K")) {
+		if(verbosity > 0)
+			printf("V4L2_CORE: OBSBOT Skipping card (card=%s: skiping peripheral V3 unit id check\n",
+				vd->cap.card);
+		return 0;
+    }
+
+	printf("%s: Init. %s (location: %s)\n", __FUNCTION__, vd->cap.card, vd->cap.bus_info);
+	return 1;
+}
 
 void add_meet4k(v4l2_dev_t *vd)
 {
 	/*asserts*/
 	assert(vd != NULL);
+	assert(vd->list_stream_formats != NULL);
 
-    if (strstr(vd->cap.card, "OBSBOT Meet 4K")) {
-        printf("%s: Init. %s (location: %s)\n", __FUNCTION__, vd->cap.card, vd->cap.bus_info);
-        vd->meet4k_unit_id = 6;
-    }
+	if(verbosity > 0)
+		printf("V4L2_CORE: checking Meet4K support\n");
+
+	if (! check_meet4k(vd)) {
+		if(verbosity > 0)
+			printf("V4L2_CORE: Not Meet4K\n");
+	}
+
+	int id;
+	if((id = get_uvc_meet4k_unit_id(vd)) <= 0)
+	{
+		return;
+	}
+    vd->meet4k_unit_id = id;
+	if((id = get_uvc_meet4k_unit_id2(vd)) <= 0)
+	{
+		return;
+	}
+    vd->meet4k_unit_id2 = id;
 }
 
 uint8_t get_uvc_meet4k_unit_id (v4l2_dev_t *vd)
 {
+	if(verbosity > 1)
+		printf("V4L2_CORE: checking for OBSBOT MEET4K unit id\n");
+
 	/*asserts*/
 	assert(vd != NULL);
 
+	uint8_t guid[16] = GUID_UVCX_OBSBOT6_XU;
+	vd->meet4k_unit_id = get_guid_unit_id (vd, guid);
+
+	if(verbosity > 0)
+		printf("V4L2_CORE: Got Meet4K unit id %d\n", vd->meet4k_unit_id);
+
     return vd->meet4k_unit_id;
 }
+
+uint8_t get_uvc_meet4k_unit_id2 (v4l2_dev_t *vd)
+{
+	if(verbosity > 1)
+		printf("V4L2_CORE: checking for OBSBOT MEET4K unit id\n");
+
+	/*asserts*/
+	assert(vd != NULL);
+
+	uint8_t guid[16] = GUID_UVCX_OBSBOT6_2_XU;
+	vd->meet4k_unit_id2 = get_guid_unit_id (vd, guid);
+
+	if(verbosity > 0)
+		printf("====== V4L2_CORE: Got Meet4K 2 unit id %d\n", vd->meet4k_unit_id2);
+
+    return vd->meet4k_unit_id2;
+}
+
 
 void meet4kcore_dump6(uvcx_obsbot_meet4k_configuration_t *configuration)
 {
