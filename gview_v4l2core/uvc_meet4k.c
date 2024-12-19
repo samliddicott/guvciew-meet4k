@@ -53,11 +53,11 @@ typedef struct _uvcx_obsbot_meet4k_configuration_t
       uint8_t camera_angle;      // 4
       uint8_t bg_mode;           // 5
       uint8_t blur_level;        // 6
-      uint8_t button_mode;       // 7
+      uint8_t dummy;             // 7
       uint16_t dummy1;           // 8,9
-      uint8_t  dummy_x;   // a
+      uint8_t button_mode;       // set in position 7 // a
       uint16_t dummy2;           // b,c
-      uint8_t noise_reduction; //set in position 0xa frame_model;       // d
+      uint8_t noise_reduction;   //set in position 0xa frame_model;       // d
       uint16_t dummy4;           // e,f
       uint8_t bg_color;          // 10
     };
