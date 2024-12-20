@@ -46,7 +46,7 @@ uint8_t meet4kcore_get_##name(v4l2_dev_t *vd) \
 } \
 int meet4kcore_set_##name(v4l2_dev_t *vd, uint8_t mode) \
 { \
-	uvcx_obsbot_meet4k_configuration_t command = { __VA_ARGS__, mode }; \
+	uvcx_obsbot_meet4k_configuration_t command = {{{ __VA_ARGS__, mode }}}; \
 	fprintf(stderr, "V4L2_MEET4K: set " #name ": %d\n", mode); \
 	return meet4kcore_cmd6(vd, &command); \
 }

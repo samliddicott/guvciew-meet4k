@@ -83,7 +83,7 @@ uint8_t is_probably_obsbot (int vendor, v4l2_dev_t *vd)
 	/* 6e30 is original vendor id for OBSBOT. After firmware update, it becomes 0x3564 (REMO TECH Co., Ltd.) */
 	return(vendor == 0x6e30 ||
 	       vendor == 0x3564 ||
-	       strstr(vd->cap.card, "OBSBOT Meet 4K"));
+	       strstr((char*)vd->cap.card, "OBSBOT Meet 4K"));
 }
 
 int check_meet4k(v4l2_dev_t *vd)
@@ -242,12 +242,12 @@ int meet4kcore_get6(v4l2_dev_t *vd, uvcx_obsbot_meet4k_configuration_t *configur
 
 	int err = E_OK;
 
-	if(err = (v4l2core_query_xu_control(
+	if((err = (v4l2core_query_xu_control(
 		vd,
 		vd->meet4k_unit_id,
 		UVCX_MEET4K_SETTINGS_6,
 		UVC_GET_CUR,
-		configuration)) < 0)
+		configuration))) < 0)
 	{
 		fprintf(stderr, "V4L2_CORE: (Meet4k) query (%u) error: %s\n", UVC_GET_CUR, strerror(errno));
 		return 0xff;
