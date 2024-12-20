@@ -622,13 +622,16 @@ void MainWindow::gui_qt6_update_controls_state() {
           current->control.id != V4L2_CID_TILT_RESET &&
           current->control.id != V4L2_CID_LED1_MODE_LOGITECH &&
           current->control.id != V4L2_CID_RAW_BITS_PER_PIXEL_LOGITECH) {
-        /*disable spinbox signals*/
-        thisone->widget2->blockSignals(true);
-        /*updating slider will also update spinbox*/
-        QSlider *slider = (QSlider *)thisone->widget;
-        slider->setValue(current->value);
-        /*enable spinbox signals*/
-        thisone->widget2->blockSignals(false);
+        if (thisone->widget2) {
+          /*disable spinbox signals*/
+          thisone->widget2->blockSignals(true);
+          /*updating slider will also update spinbox*/
+          QSlider *slider = (QSlider *)thisone->widget;
+          if (slider)
+            slider->setValue(current->value);
+          /*enable spinbox signals*/
+          thisone->widget2->blockSignals(false);
+        }
       }
       break;
 
