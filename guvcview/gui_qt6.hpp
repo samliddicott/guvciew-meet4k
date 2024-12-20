@@ -121,7 +121,11 @@ private:
   int gui_attach_qt6_videoctrls(QWidget *parent);
   int gui_attach_qt6_audioctrls(QWidget *parent);
   int gui_attach_qt6_menu(QWidget *parent);
+  int gui_attach_qt6_meet4kctrls(QWidget *parent);
   int gui_attach_qt6_h264ctrls(QWidget *parent);
+
+  // meet4k
+  void update_meet4k_controls();
 
   // h264
   void update_h264_controls();
@@ -131,6 +135,7 @@ private:
   QTimer *timer_check_control_events;
 
   QWidget *img_controls_grid;
+  QWidget *meet4k_controls_grid;
   QWidget *h264_controls_grid;
   QWidget *video_controls_grid;
   QWidget *audio_controls_grid;

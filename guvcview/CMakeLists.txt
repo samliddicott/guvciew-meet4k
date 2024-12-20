@@ -51,6 +51,7 @@ if(USE_QT6)
       gui_qt6_callbacks.cpp
       gui_qt6.cpp
       gui_qt6_h264ctrls.cpp
+      gui_qt6_meet4kctrls.cpp
       gui_qt6_menu.cpp
       gui_qt6_v4l2ctrls.cpp
       gui_qt6_videoctrls.cpp)

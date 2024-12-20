@@ -165,6 +165,21 @@ MainWindow::MainWindow() {
   QIcon image_tab_icon = QIcon::fromTheme("video-display");
   control_tab->setTabIcon(tab_ind, image_tab_icon);
 
+  /*----------------------------OBSBOT Meet 4K tab --------------------------*/
+  if (get_uvc_meet4k_unit_id(get_v4l2_device_handler()), get_uvc_meet4k_unit_id2(get_v4l2_device_handler())) {
+    QScrollArea *scroll_meet4kctrls = new QScrollArea(control_tab);
+
+    gui_attach_qt6_meet4kctrls(scroll_meet4kctrls);
+    scroll_meet4kctrls->setWidget(meet4k_controls_grid);
+    scroll_meet4kctrls->setWidgetResizable(true);
+
+    tab_ind = control_tab->addTab(scroll_meet4kctrls, _("OBSBT Meet4k"));
+    // QIcon
+    // meet4k_tab_icon(QString(PACKAGE_DATA_DIR).append("/pixmaps/guvcview/image_controls.png"));
+    QIcon meet4k_tab_icon = QIcon::fromTheme("video-x-generic");
+    control_tab->setTabIcon(tab_ind, meet4k_tab_icon);
+  }
+
   /*----------------------------H264 Controls Tab --------------------------*/
   if (v4l2core_get_h264_unit_id(get_v4l2_device_handler()) > 0) {
     QScrollArea *scroll_h264ctrls = new QScrollArea(control_tab);
