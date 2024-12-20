@@ -122,7 +122,6 @@ void meet4k_camera_bg_color_changed(GtkComboBox *combo, void *data)
 	meet4kcore_set_bg_color(get_v4l2_device_handler(), color);
     if (0 != gtk_combo_box_get_active(GTK_COMBO_BOX(Background)))
       gtk_combo_box_set_active(GTK_COMBO_BOX(Background), 0);
-
 }
 
 
@@ -233,7 +232,6 @@ int gui_attach_gtk3_meet4kctrls (GtkWidget *parent)
 	uint8_t min_backgroundmode = 0;
 	uint8_t max_backgroundmode = 3;
 
-
 	BackgroundMode = gtk_combo_box_text_new();
 	if(max_backgroundmode >= 1 && min_backgroundmode < 2)
 		gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(BackgroundMode),
@@ -241,7 +239,6 @@ int gui_attach_gtk3_meet4kctrls (GtkWidget *parent)
 	if(max_backgroundmode >= 2 && min_backgroundmode < 3)
 		gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(BackgroundMode),
 										_("Virtual"));
-
 	if(max_backgroundmode >= 3 && min_backgroundmode < 4)
 		gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(BackgroundMode),
 										_("Track"));
@@ -303,7 +300,6 @@ int gui_attach_gtk3_meet4kctrls (GtkWidget *parent)
 	gtk_grid_attach (GTK_GRID(meet4k_controls_grid), CameraAngle, 1, line, 1 ,1);
 	gtk_widget_show (CameraAngle);
 
-	/* Camera bg mode */
 	line++;
 
 	GtkWidget* label_Background = gtk_label_new(_("Background:"));
@@ -411,7 +407,7 @@ int gui_attach_gtk3_meet4kctrls (GtkWidget *parent)
 	if(max_ColorBG >= 4 && min_ColorBG < 5)
 		gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(ColorBG),
 										_("Black"));
-	if(max_ColorBG >= 4 && min_ColorBG < 5)
+	if(max_ColorBG >= 5 && min_ColorBG < 6)
 		gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(ColorBG),
 										_("White"));
 
@@ -419,7 +415,7 @@ int gui_attach_gtk3_meet4kctrls (GtkWidget *parent)
 	int ColorBG_index = cur_ColorBG;
 	if(ColorBG_index < 0)
 		ColorBG_index = 0;
-fprintf(stderr, "BG COLOR = %d\n", ColorBG_index);
+
 	gtk_combo_box_set_active(GTK_COMBO_BOX(ColorBG), ColorBG_index);
 
 	//connect signal
