@@ -85,6 +85,14 @@ private slots:
   void render_osd_changed(int state);
   /* meet4k */
   void meet4k_background_mode_changed(int index);
+  void meet4k_camera_angle_changed(int index);
+  void meet4k_background_changed(int index);
+  void meet4k_ColorBG_changed(int index);
+  void meet4k_blur_level_changed(int value);
+  void meet4k_hdr_mode_changed(int value);
+  void meet4k_ae_mode_changed(int value);
+  void meet4k_br_mode_changed(int value);
+  void meet4k_nr_mode_changed(int value);
   /*h264*/
   void h264_rate_control_mode_changed(int index);
   void h264_TemporalScaleMode_changed(int value);
@@ -164,6 +172,10 @@ private:
 
   // meet4k controls
   QComboBox *BackgroundMode;
+  QComboBox *CameraAngle;
+  QComboBox *Background;
+  QComboBox *ColorBG;
+  QSlider *Slider;
 
   // h264 controls
   QComboBox *RateControlMode;
