@@ -83,6 +83,8 @@ private slots:
   void format_changed(int index);
   void render_fx_filter_changed(int state);
   void render_osd_changed(int state);
+  /* meet4k */
+  void meet4k_background_mode_changed(int index);
   /*h264*/
   void h264_rate_control_mode_changed(int index);
   void h264_TemporalScaleMode_changed(int value);
@@ -159,6 +161,9 @@ private:
 
   QAction *webm_vcodec_action;
   QAction *webm_acodec_action;
+
+  // meet4k controls
+  QComboBox *BackgroundMode;
 
   // h264 controls
   QComboBox *RateControlMode;
